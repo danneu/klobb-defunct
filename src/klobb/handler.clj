@@ -9,7 +9,8 @@
              :refer [trim replace-first split]]
             [compojure.handler :as handler]
             [ring.adapter.jetty :refer [run-jetty]]
-            [compojure.route :as route])
+            [compojure.route :as route]
+            [clj-time.format :as time])
   (:import [java.io File])
   (:gen-class))
 
@@ -159,12 +160,21 @@
      :opts (merge default-opts
                   (parse-opts content))}))
 
+(defn parse-date
+  "yyyy-mm-dd to joda DateTime"
+  [s]
+  (time/parse (time/formatters :year-month-day) s))
+
 (defn gen-posts []
-  (let [posts-path (expand-path "posts/")]
-    (for [folder (.listFiles (File. posts-path))
-          :let [folder-path (str (.getAbsolutePath folder) "/")]
-          :when #(.isDirectory %)]
-      (gen-post folder-path))))
+  (let [posts-path (expand-path "posts/")
+        posts (for [folder (.listFiles (File. posts-path))
+                    :let [folder-path (str (.getAbsolutePath folder) "/")]
+                    :when #(.isDirectory %)]
+                (gen-post folder-path))]
+    ;; TODO: I added clj-time to sort by dates.
+    ;;       At the moment I'm too lazy to actually pass around
+    ;;       DateTime objects instead of yyyy-mm-dd strings.
+    (reverse (sort-by #(parse-date (-> % :opts :created-at)) posts))))
 
 (def post-lookup (into {} (map #(vector (-> % :opts :slug) %)
                                (gen-posts))))

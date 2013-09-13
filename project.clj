@@ -7,6 +7,7 @@
                  [ring "1.2.0"]
                  [markdown-clj "0.9.29"]
                  [de.ubercode.clostache/clostache "1.3.1"]
+                 [clj-time "0.6.0"]
                  [compojure "1.1.5"]]
   :plugins [[lein-ring "0.8.5"]]
   :ring {:handler klobb.handler/app}
