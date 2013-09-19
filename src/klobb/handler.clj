@@ -153,12 +153,15 @@
                                           folder-name)
                       :published? true
                       :layout "post"
-                      :slug folder-name}]
+                      :slug folder-name}
+        user-opts (parse-opts content)]
     {:folder-name folder-name
      :folder-path folder-path
      :content-path (str folder-path "content.md")
      :opts (merge default-opts
-                  (parse-opts content))}))
+                  user-opts
+                  ;; :disqus-id is :slug unless user specifies :disqus-id
+                  {:disqus-id (or (:disqus-id user-opts) (:slug user-opts))})}))
 
 (defn parse-date
   "yyyy-mm-dd to joda DateTime"
